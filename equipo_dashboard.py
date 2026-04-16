@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════╗
 ║   DASHBOARD CREDITICIO · SEGMENTO JOVEN · JALISCO 2024      ║
 ║   Datos calibrados con estadísticas ENOE-INEGI Q4 2024      ║
-║   Ejecución: streamlit run reto_final_dash.py                ║
+║   Ejecución: streamlit run equipo_dashboard.py               ║
 ╚══════════════════════════════════════════════════════════════╝
 """
 
@@ -32,18 +32,11 @@ st.markdown("""
 *, html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 
 .stApp { background: #080f1e; }
-header[data-testid="stHeader"] {
-    background: linear-gradient(180deg, #0c1a30 0%, #0e2040 100%);
-    border-bottom: 1px solid #15294a;
-}
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0c1a30 0%, #0e2040 100%);
+    background: linear-gradient(180deg, #080f1e 0%, #060c18 100%);
     border-right: 1px solid #15294a;
 }
-section[data-testid="stSidebar"] > div:first-child {
-    padding-top: 4.25rem;
-}
-.block-container { padding-top: 3.75rem; }
+.block-container { padding-top: 1.5rem; }
 
 .dash-title {
     font-family: 'IBM Plex Mono', monospace;
@@ -149,9 +142,9 @@ def generar_datos_jalisco():
     antiguedad_arr = []
     for e in estatus:
         if e == "Empleado":
-            antiguedad_arr.append(round(float(np.clip(np.random.exponential(2.8), 0.1, 10)), 1))
+            antiguedad_arr.append(round(float(np.random.exponential(2.8).clip(0.1, 10)), 1))
         elif e == "Emprendedor":
-            antiguedad_arr.append(round(float(np.clip(np.random.exponential(1.5), 0.1, 7)), 1))
+            antiguedad_arr.append(round(float(np.random.exponential(1.5).clip(0.1, 7)), 1))
         else:
             antiguedad_arr.append(0.0)
 
@@ -365,9 +358,8 @@ if pagina == "🗺️  Monitor de Aprobación":
         f3 = px.bar(top5, x="N", y="Municipio", orientation="h",
                     color="N", color_continuous_scale=["#0ea5e9","#4ade80"],
                     labels={"N":"Aprobados","Municipio":""})
-        f3_layout = plotly_base(270)
-        f3_layout["yaxis"] = {**f3_layout["yaxis"], "autorange": "reversed"}
-        f3.update_layout(**f3_layout, coloraxis_showscale=False)
+        f3.update_layout(**plotly_base(270), coloraxis_showscale=False,
+                         yaxis=dict(autorange="reversed",gridcolor="#0f2240"))
         st.plotly_chart(f3, use_container_width=True)
 
 
@@ -445,9 +437,9 @@ elif pagina == "📊  Análisis de Riesgo":
                      y0=score_min, y1=dfd["Score_Final"].max()*1.05,
                      fillcolor="rgba(74,222,128,0.06)",
                      line_color="rgba(74,222,128,0.25)")
-    fig_sc_layout = plotly_base(430)
-    fig_sc_layout["xaxis"] = {**fig_sc_layout["xaxis"], "tickformat": "$,.0f"}
-    fig_sc.update_layout(**fig_sc_layout)
+    fig_sc.update_layout(**plotly_base(430),
+                         xaxis=dict(gridcolor="#0f2240", tickformat="$,.0f"),
+                         yaxis=dict(gridcolor="#0f2240"))
     st.plotly_chart(fig_sc, use_container_width=True)
 
     col_h1, col_h2 = st.columns(2)
@@ -468,9 +460,8 @@ elif pagina == "📊  Análisis de Riesgo":
                            opacity=0.7, labels={"Ingresos_Mensuales":"Ingresos (MXN)","Cand_Din":"Estatus"})
         fh2.add_vline(x=ing_min, line_dash="dash", line_color="#fbbf24",
                       annotation_text=f"${ing_min:,}", annotation_font_color="#fbbf24")
-        fh2_layout = plotly_base(260)
-        fh2_layout["xaxis"] = {**fh2_layout["xaxis"], "tickformat": "$,.0f"}
-        fh2.update_layout(**fh2_layout, showlegend=False)
+        fh2.update_layout(**plotly_base(260), showlegend=False,
+                          xaxis=dict(gridcolor="#0f2240", tickformat="$,.0f"))
         st.plotly_chart(fh2, use_container_width=True)
 
     st.markdown('<div class="sec-title">🗺 MAPA CON UMBRAL DINÁMICO</div>', unsafe_allow_html=True)
@@ -580,14 +571,10 @@ elif pagina == "🎬  Dinámica Temporal":
                      labels={"Tasa":"Tasa (%)","Mes":""})
         fl.update_traces(marker=dict(size=13, color="#4ade80", line=dict(width=2,color="#38bdf8")),
                          line=dict(width=3))
-        fl_layout = plotly_base(250)
-        fl_layout["xaxis"] = {
-            **fl_layout["xaxis"],
-            "categoryorder": "array",
-            "categoryarray": ["Enero", "Febrero", "Marzo"],
-        }
-        fl_layout["yaxis"] = {**fl_layout["yaxis"], "ticksuffix": "%"}
-        fl.update_layout(**fl_layout)
+        fl.update_layout(**plotly_base(250),
+                         xaxis=dict(categoryorder="array",categoryarray=["Enero","Febrero","Marzo"],
+                                    gridcolor="#0f2240"),
+                         yaxis=dict(ticksuffix="%",gridcolor="#0f2240"))
         st.plotly_chart(fl, use_container_width=True)
 
     with col_t2:
@@ -595,13 +582,9 @@ elif pagina == "🎬  Dinámica Temporal":
         fb = px.bar(df_mes, x="Mes", y=["Aprobados","Total"],
                     color_discrete_map={"Aprobados":"#4ade80","Total":"#1e3a5a"},
                     barmode="overlay", labels={"value":"Solicitudes","Mes":"","variable":""})
-        fb_layout = plotly_base(250)
-        fb_layout["xaxis"] = {
-            **fb_layout["xaxis"],
-            "categoryorder": "array",
-            "categoryarray": ["Enero", "Febrero", "Marzo"],
-        }
-        fb.update_layout(**fb_layout)
+        fb.update_layout(**plotly_base(250),
+                         xaxis=dict(categoryorder="array",categoryarray=["Enero","Febrero","Marzo"],
+                                    gridcolor="#0f2240"))
         st.plotly_chart(fb, use_container_width=True)
 
     st.markdown('<div class="sec-title">TABLA RESUMEN MENSUAL DETALLADA</div>', unsafe_allow_html=True)
@@ -630,6 +613,6 @@ st.markdown("""
 font-family:'IBM Plex Mono',monospace;line-height:2;">
     DASHBOARD CREDITICIO · JALISCO · SEGMENTO 18–27 AÑOS · 2024<br>
     Datos calibrados con ENOE-INEGI Q4 2024 · Python · Streamlit · Plotly<br>
-    streamlit run reto_final_dash.py
+    streamlit run equipo_dashboard.py
 </div>
 """, unsafe_allow_html=True)
